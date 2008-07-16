@@ -3,8 +3,8 @@ CC = gcc
 
 #######################################################
 # The following two dirs MUST be customized to your setup: 
-LIBP5DIR=/your_path/to/libp5glove-20050129/trunk
-PD_EXTERNALS_DIR=/your_path/to/pd-externals-cvs-20050129/externals
+LIBP5DIR=/home/jason/src/libp5glove/trunk
+PD_EXTERNALS_DIR=/home/jason/src/pd-svn/trunk/externals
 #######################################################
 
 OSCDIR=$(PD_EXTERNALS_DIR)/OSCx

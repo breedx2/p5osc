@@ -54,7 +54,8 @@ int main(int argc, char **argv){
 	}
 
 	printf("Creating socket for %s:%d...\n", hostname, port);
-	htmsocket = OpenHTMSocket(hostname, port);
+	short ttl = -1;
+	htmsocket = OpenHTMSocket(hostname, port, &ttl);
 	if(!htmsocket){
 		printf("Aborting\n");
 		return -1;
