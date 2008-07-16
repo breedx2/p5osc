@@ -1,0 +1,7 @@
+AC_INIT
+AM_INIT_AUTOMAKE(p5osc,0.02)
+AM_CONFIG_HEADER(config.h)
+
+AC_PROG_CC
+
+AC_OUTPUT([Makefile src/Makefile])
