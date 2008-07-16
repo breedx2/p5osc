@@ -1,0 +1,96 @@
+
+#include <math.h>
+#include <errno.h>
+#include "m_pd.h"
+#include "p5glove.h"
+
+static t_class *p5_class;
+
+typedef struct _p5 {
+	t_object p5_obj;
+
+	/* outlets */
+	t_outlet *btn_a_out, *btn_b_out, *btn_c_out;
+	t_outlet *thumb_out, *index_out, *middle_out, *ring_out, *pinky_out;
+
+	/* The glove "handle" */
+	P5Glove glove;
+	//...
+} t_p5;
+
+//t_symbol *s, int argc, t_atom *argv){
+void *p5_new(){
+	t_p5 *p5 = (t_p5*) pd_new(p5_class);
+
+	//Init p5 glove
+	p5->glove = p5glove_open();
+	if (p5->glove == NULL) {
+		error("*** p5 error: Couldn't open p5 glove device.\n");
+		return NULL;
+	}
+
+	/* Buttons */
+	p5->btn_a_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->btn_b_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->btn_c_out = outlet_new(&(p5->p5_obj), &s_float);
+
+	/* Fingers */
+	p5->thumb_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->index_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->middle_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->ring_out = outlet_new(&(p5->p5_obj), &s_float);
+	p5->pinky_out = outlet_new(&(p5->p5_obj), &s_float);
+	
+	return p5;
+}
+
+void p5_free(){
+	//p5glove_close(p5->glove);
+	post("free being called...I should likely close the device handle here...\n");
+	//but how do I get the handle from which struct???
+}
+
+void p5_bang(t_p5 *p5){
+
+	struct p5glove_data info;
+
+	int err = p5glove_sample(p5->glove, &info);
+
+	if (err < 0 && errno == EAGAIN){
+		return;
+	}
+	if (err < 0) {
+		error("*** p5 glove failure");
+		return;
+	}
+
+	/* Output button data */
+	if(info.buttons & P5GLOVE_BUTTON_A)
+		outlet_float(p5->btn_a_out, 1);
+	else
+		outlet_float(p5->btn_a_out, 0);
+
+	if(info.buttons & P5GLOVE_BUTTON_B)
+		outlet_float(p5->btn_b_out, 1);
+	else
+		outlet_float(p5->btn_b_out, 0);
+
+	if(info.buttons & P5GLOVE_BUTTON_C)
+		outlet_float(p5->btn_c_out, 1);
+	else
+		outlet_float(p5->btn_c_out, 0);
+	
+	/* Output finger data */
+	outlet_float(p5->thumb_out, info.finger[P5GLOVE_THUMB]);
+	outlet_float(p5->index_out, info.finger[P5GLOVE_INDEX]);
+	outlet_float(p5->middle_out, info.finger[P5GLOVE_MIDDLE]);
+	outlet_float(p5->ring_out, info.finger[P5GLOVE_RING]);
+	outlet_float(p5->pinky_out, info.finger[P5GLOVE_PINKY]);
+
+}
+
+void p5_setup(){
+	p5_class = class_new(gensym("p5"), p5_new, p5_free, sizeof(t_p5), CLASS_DEFAULT, A_NULL);
+	class_addbang(p5_class, p5_bang);
+}
+

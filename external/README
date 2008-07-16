@@ -1,0 +1,5 @@
+This was the first approach that used a pd external.
+
+In short, it didn't work well because libusb doesn't have an 
+asynchronous api that wouldn't block audio.  If/when that 
+changes we should/could revisit this.
